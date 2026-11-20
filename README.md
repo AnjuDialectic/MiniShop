@@ -80,11 +80,12 @@ flowchart LR
 
 | Layer | Teknologi | Alasan Pemilihan |
 |---|---|---|
-| **Frontend** | React 19, Vite 8, TypeScript (`strict`), Tailwind CSS v4, React Router 7, Lucide React | SPA murni cocok dipasangkan dengan REST API terpisah, bebas *hydration mismatch* saat membaca `localStorage`, cepat dibuild, dan mudah dideploy ke hosting statis. |
-| **State Management** | Zustand 5 (`persist` middleware) | Minim boilerplate, mendukung selector granular agar re-render efisien, dan menyediakan persistensi `localStorage` dengan kontrol sanitasi rehydration. |
-| **Backend** | Laravel 13 (PHP 8.4+), Eloquent ORM | Mendukung migration, seeder, `FormRequest`, API Resources, `SoftDeletes`, `DB::transaction`, dan HTTP Feature Tests secara native. |
+| **Frontend Core** | React 19, Vite 8, TypeScript (`strict`) | SPA murni cocok dipasangkan dengan REST API terpisah tanpa *hydration mismatch* saat membaca `localStorage`, build instan, serta *compile-time type safety* untuk kontrak API. |
+| **Styling & Routing** | Tailwind CSS v4, React Router 7, Lucide React | Utility-first CSS + *design tokens* mempercepat layout responsif desktop/mobile yang konsisten, routing deklaratif Storefront/Admin, dan ikon SVG ringan. |
+| **State Management** | Zustand 5 (`persist` middleware) | Minim boilerplate dibanding Redux, selector granular mencegah re-render berlebih, serta menyediakan persistensi `localStorage` dengan kontrol sanitasi rehydration. |
+| **Backend API** | Laravel 13 (PHP 8.4+), Eloquent ORM | Ekosistem *batteries-included* untuk migration, seeder, `FormRequest`, API Resources, `SoftDeletes`, `DB::transaction`, dan HTTP Feature Tests secara native. |
 | **Database** | SQLite (lokal) & PostgreSQL (production) | SQLite memungkinkan setup lokal nol-konfigurasi tanpa Docker; kode migration, pencarian, dan checkout sudah dirancang kompatibel penuh dengan PostgreSQL (`CHECK` constraints, `ILIKE`, `lockForUpdate()`). |
-| **Code Quality** | PHPUnit 12, Laravel Pint, TypeScript `tsc`, Oxlint | Menjaga konsistensi gaya kode, keamanan tipe, dan kebenaran transaksi di setiap tahap perubahan. |
+| **Quality & Testing** | PHPUnit 12, Laravel Pint, TypeScript `tsc`, Oxlint | Verifikasi otomatis kebenaran transaksi stok, validasi tipe statis, dan konsistensi format kode lintas stack. |
 
 ---
 
@@ -199,6 +200,48 @@ Semua response memakai amplop JSON konsisten:
 | `GET` | `/api/v1/orders` | Admin | Daftar pesanan terurut terbaru + `items_count` (`?per_page=`) | `200` |
 | `GET` | `/api/v1/orders/{id}` | Admin & Customer | Detail pesanan lengkap beserta array `items` snapshot | `200`, `404` |
 
+### Contoh Kontrak Produk (`GET /api/v1/products` & `POST /api/v1/products`)
+
+**Response `200 OK` (`GET /api/v1/products?search=keyboard&category=Elektronik`):**
+```json
+{
+  "success": true,
+  "message": "Daftar produk berhasil diambil.",
+  "data": [
+    {
+      "id": 1,
+      "name": "Mechanical Keyboard Keychron K2 Wireless",
+      "description": "Keyboard mekanikal compact 75% dengan koneksi Bluetooth 5.1 dan USB-C...",
+      "price": 1299000,
+      "stock": 8,
+      "category": "Elektronik",
+      "image_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
+      "is_in_stock": true,
+      "created_at": "2026-11-20T12:00:00+07:00",
+      "updated_at": "2026-11-20T12:00:00+07:00"
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "per_page": 20,
+    "current_page": 1,
+    "last_page": 1
+  }
+}
+```
+
+**Request (`POST /api/v1/products`) → Response `201 Created`:**
+```json
+{
+  "name": "Mousepad Deskmat Felt 80x30cm",
+  "description": "Alas meja bahan wool felt halus anti-slip untuk setup kerja minimalis.",
+  "price": 149000,
+  "stock": 12,
+  "category": "Aksesoris",
+  "image_url": "https://images.unsplash.com/photo-1616628188550-808682f3926d?auto=format&fit=crop&w=800&q=80"
+}
+```
+
 ### Contoh Kontrak Checkout (`POST /api/v1/orders`)
 
 **Request:**
@@ -235,10 +278,19 @@ Semua response memakai amplop JSON konsisten:
         "id": 6,
         "product_id": 1,
         "product_name": "Mechanical Keyboard Keychron K2 Wireless",
-        "product_image_url": "https://images.unsplash.com/...",
+        "product_image_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
         "unit_price": 1299000,
         "quantity": 1,
         "subtotal": 1299000
+      },
+      {
+        "id": 7,
+        "product_id": 5,
+        "product_name": "Laptop Sleeve Kulit Vegan 14 Inch",
+        "product_image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
+        "unit_price": 245000,
+        "quantity": 2,
+        "subtotal": 490000
       }
     ]
   }
