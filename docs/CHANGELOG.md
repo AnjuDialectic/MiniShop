@@ -54,8 +54,17 @@ Seluruh perubahan penting dan pencapaian milestone proyek MiniShop dicatat secar
   - `OrderDetailModal` memuat `GET /api/v1/orders/{id}` menampilkan metadata pembeli, catatan pesanan, salin kode order, dan rincian snapshot permanen `order_items` (`product_image_url`, `product_name`, `unit_price`, `quantity`, `subtotal`, grand total) yang tetap utuh meskipun produk asli telah di-soft-delete.
 - **Verifikasi:** `npm run typecheck`, `npm run lint` (`0 warnings, 0 errors`), `npm run build` lulus bersih; uji E2E live browser desktop (`1440px`) & mobile (`375px`) memverifikasi CRUD produk, validasi error, sinkronisasi Storefront, soft-delete + keutuhan snapshot order, `0 console errors`, `0 horizontal overflow`, dilanjutkan `php artisan migrate:fresh --seed` untuk mengembalikan kondisi awal database lokal (10 produk & 2 sample order).
 
-### Planned
-- Fase 7: Edge-case QA, konfigurasi deployment (Vercel/Railway/Render), `README.md`, dan `AI_USAGE.md`.
+### Completed (Fase 7: Finalisasi, Dokumentasi Wajib, Audit & Persiapan Deployment)
+- **Dokumentasi Root Wajib (`README.md`, `AI_USAGE.md`):**
+  - Menyusun `README.md` profesional mencakup ringkasan & fitur utama, diagram arsitektur + Tech Stack, panduan instalasi lokal zero-setup (`php artisan migrate:fresh --seed` berisi 10 produk dummy & 2 sample order), daftar 10 REST API endpoints + contoh payload `201`/`409`, struktur monorepo akurat, penjelasan keputusan arsitektur kunci (Atomic Checkout, snapshot `order_items` + `SoftDeletes`, persistensi cart `minishop-cart-v1`, akses `/admin` tanpa auth), panduan deployment, dan *Known Limitations & Trade-offs*.
+  - Menyusun `AI_USAGE.md` transparan mencakup daftar AI tools & model (Google Antigravity — Gemini 4 Neon Extra & Claude Opus 5.5 High), pendekatan Document-Driven Phased Development, pembagian peran AI vs developer di setiap fase, 2 contoh prompt krusial aktual (Backend Atomic Checkout SQLite/PostgreSQL + Tests, dan Frontend Storefront + 409 Conflict Recovery), serta daftar verifikasi dan koreksi aktif.
+- **Konfigurasi Deployment & Hardening (`backend/`, `frontend/`, `docs/`):**
+  - Membuat `frontend/vercel.json` dan `frontend/public/_redirects` untuk SPA routing fallback pada Vercel/Netlify.
+  - Membuat `backend/Dockerfile` (berbasis `php:8.4-cli-alpine` sesuai syarat `symfony/* v8.1` di `composer.lock`, dengan `pdo_pgsql` & `pdo_sqlite`, `config:cache`, `migrate --force`, dan opsi `RUN_SEEDER`) serta `backend/.dockerignore`.
+  - Menyempurnakan `backend/config/cors.php` (trim spasi & trailing slash pada `FRONTEND_URL`), `backend/config/database.php` (fallback `env('DB_URL', env('DATABASE_URL'))` untuk koneksi `pgsql` di Railway/Render), `backend/.env.example`, dan `docs/ENV.md`.
+- **Audit Kebersihan & Final Quality Gate:**
+  - Memastikan `git ls-files` bersih dari `.env`, `database.sqlite`, `vendor/`, `node_modules/`, `dist/`, dan file sampah.
+  - Seluruh checklist Fase 0–7 pada `docs/TASK.md` selesai dan terverifikasi lulus penuh (`php artisan migrate:fresh --seed`, `php artisan test`, `vendor/bin/pint --test`, `npm run typecheck`, `npm run lint`, `npm run build`).
 
 ---
 

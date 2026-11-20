@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.phpunit.result.cache
+database/*.sqlite
+database/*.sqlite-*
+node_modules
+public/build
+public/hot
+storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+tests
+vendor

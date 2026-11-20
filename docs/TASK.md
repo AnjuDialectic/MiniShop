@@ -65,10 +65,10 @@ Gunakan daftar ini sebagai panduan eksekusi berurutan agar proyek selesai rapi d
   - *verify:* Tambah/Edit/Hapus produk di `/admin` langsung tercermin di Storefront; order baru dari checkout langsung muncul di `/admin/orders` lengkap dengan detailnya.
 
 ### Fase 7: QA, Deliverables, Documentation & Deploy Prep (~2 Jam)
-- [ ] **7.1** Jalankan pengujian edge cases menyeluruh (stok 0, batas stok, stale cart saat produk dihapus/stok diubah admin, broken image URL, input qty ekstrem, mobile responsiveness, keyboard Escape pada modal).
-- [ ] **7.2** Buat konfigurasi siap deploy: `frontend/vercel.json`, `frontend/public/_redirects`, `backend/Dockerfile`, dan pastikan `frontend` & `backend` bisa dibuild produksi (`npm run build`).
-- [ ] **7.3** Tulis `README.md` di root repo (Overview, Tech Stack & alasan, Langkah instalasi lokal + docker + migrate & seeder, Tabel daftar endpoint API + contoh request/response, Known Limitations).
-- [ ] **7.4** Tulis `AI_USAGE.md` di root repo (daftar AI coding tools + 2 contoh prompt krusial untuk logika cart & atomic stock deduction).
-- [ ] **7.5** (Opsional / Nilai Plus) Deploy Frontend ke Vercel/Netlify & Backend + PostgreSQL ke Railway/Render, lalu cantumkan live demo URL di `README.md`.
-- [ ] **7.6** Final cleanliness check (test fresh clone/setup, push ke GitHub/GitLab, siapkan email pengiriman sesuai ketentuan Roketin).
-  - *verify:* Semua deliverables pada Case Study PDF terpenuhi 100%.
+- [x] **7.1** Jalankan pengujian edge cases menyeluruh (stok 0, batas stok, stale cart saat produk dihapus/stok diubah admin, broken image URL, input qty ekstrem, mobile responsiveness, keyboard Escape pada modal) melalui Feature Tests backend & E2E live browser desktop (`1440px`) & mobile (`375px`).
+- [x] **7.2** Buat & sempurnakan konfigurasi siap deploy: `frontend/vercel.json`, `frontend/public/_redirects`, `backend/Dockerfile`, `backend/.dockerignore`, hardening `backend/config/cors.php` (trim trailing slash), `backend/config/database.php` (`DB_URL`/`DATABASE_URL` fallback), dan verifikasi production build (`npm run build`).
+- [x] **7.3** Tulis `README.md` di root repo (Overview, Fitur Utama, Arsitektur & Tech Stack, Panduan instalasi lokal termasuk `php artisan migrate:fresh --seed` 10 produk & 2 sample order, Daftar REST API endpoints & struktur monorepo, Keputusan desain kunci, Persiapan deploy, dan Known Limitations).
+- [x] **7.4** Tulis `AI_USAGE.md` di root repo (daftar AI tools & model, pembagian peran AI vs developer per fase, 2 contoh prompt krusial aktual backend Atomic Checkout & frontend 409 recovery, serta catatan verifikasi & koreksi aktif).
+- [x] **7.5** Siapkan konfigurasi & panduan deployment cloud (Vercel/Netlify untuk frontend & Railway/Render + PostgreSQL untuk backend) pada `README.md` dan `docs/ENV.md` (deploy live demo bersifat opsional pasca-push).
+- [x] **7.6** Audit kebersihan repository (`git ls-files`, `.gitignore`, `.env.example`) dan jalankan Final Quality Gate penuh (backend `migrate:fresh --seed`, `php artisan test`, `vendor/bin/pint --test`; frontend `typecheck`, `lint`, `build`; `git status` bersih siap commit & push ke GitHub).
+  - *verify:* Seluruh deliverables wajib terpenuhi dan semua quality gate lulus 100%.

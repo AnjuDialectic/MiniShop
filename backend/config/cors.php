@@ -15,7 +15,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => array_values(array_filter(array_map(
-        'trim',
+        static fn (string $origin): string => rtrim(trim($origin), '/'),
         explode(',', (string) env('FRONTEND_URL', 'http://localhost:5173')),
     ))),
 
