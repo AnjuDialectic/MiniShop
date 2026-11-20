@@ -33,3 +33,8 @@ export interface CreateOrderPayload {
   notes?: string | null;
   items: CreateOrderItemPayload[];
 }
+
+export interface OrderListParams {
+  page?: number;
+  per_page?: number;
+}

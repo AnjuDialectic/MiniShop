@@ -20,3 +20,12 @@ export interface ProductListParams {
   page?: number;
   per_page?: number;
 }
+
+export interface ProductMutationPayload {
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  image_url: string;
+}

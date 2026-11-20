@@ -11,6 +11,8 @@ export interface ProductImageProps {
   compactFallback?: boolean;
   className?: string;
   imgClassName?: string;
+  onLoadSuccess?: () => void;
+  onLoadError?: () => void;
 }
 
 export function ProductImage({
@@ -22,6 +24,8 @@ export function ProductImage({
   compactFallback = false,
   className,
   imgClassName,
+  onLoadSuccess,
+  onLoadError,
 }: ProductImageProps) {
   const normalizedSrc = src?.trim() ?? '';
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
@@ -58,7 +62,16 @@ export function ProductImage({
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
           fetchPriority={priority ? 'high' : undefined}
-          onError={() => setFailedSrc(normalizedSrc)}
+          onLoad={() => {
+            if (failedSrc !== null) {
+              setFailedSrc(null);
+            }
+            onLoadSuccess?.();
+          }}
+          onError={() => {
+            setFailedSrc(normalizedSrc);
+            onLoadError?.();
+          }}
           className={cn(
             'h-full w-full object-cover transition-transform duration-300 ease-[var(--ease-editorial)]',
             muted && 'opacity-70 grayscale-[25%]',

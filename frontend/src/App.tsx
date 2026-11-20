@@ -7,7 +7,9 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell';
-import { AdminPlaceholderPage } from './features/admin/AdminPlaceholderPage';
+import { AdminLayout } from './features/admin/AdminLayout';
+import { OrdersTable } from './features/admin/OrdersTable';
+import { ProductsTable } from './features/admin/ProductsTable';
 import { CatalogPage } from './features/catalog/CatalogPage';
 import { ProductDetailPage } from './features/catalog/ProductDetailPage';
 import { OrderConfirmationPage } from './features/checkout/OrderConfirmationPage';
@@ -34,8 +36,12 @@ export function App() {
             path="/orders/:id/confirmation"
             element={<OrderConfirmationPage />}
           />
-          <Route path="/admin" element={<AdminPlaceholderPage />} />
-          <Route path="/admin/*" element={<AdminPlaceholderPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="products" replace />} />
+            <Route path="products" element={<ProductsTable />} />
+            <Route path="orders" element={<OrdersTable />} />
+            <Route path="*" element={<Navigate to="products" replace />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppShell>

@@ -38,8 +38,23 @@ Seluruh perubahan penting dan pencapaian milestone proyek MiniShop dicatat secar
   - `CheckoutModal` & `OrderConfirmationPage` (`/orders/:id/confirmation`): submit `POST /api/v1/orders` tanpa payment gateway, anti double-submit, panel pemulihan `409 Conflict` per item & 1-klik *"Sesuaikan Semua ke Stok Tersedia"*, pengosongan otomatis cart di Zustand + `localStorage` saat sukses, serta halaman konfirmasi *"Order Berhasil"* yang mendukung refresh via `GET /api/v1/orders/{id}`.
 - **Verifikasi:** `npm run typecheck`, `npm run lint` (`0 warnings, 0 errors`), `npm run build` lulus bersih, serta uji E2E live browser (termasuk simulasi 409 Conflict multi-tab, persistensi `localStorage` lintas reload, dan responsivitas `1440px` & `375px`).
 
+### Completed (Fase 6: Admin Dashboard `/admin`)
+- **API Client & Types (`frontend/src/api/`, `src/types/`, `src/components/ui/ProductImage.tsx`):**
+  - Tambahkan kontrak `ProductMutationPayload`, `OrderListParams`, serta fungsi mutasi `createProduct` (`POST /api/v1/products`), `updateProduct` (`PUT /api/v1/products/{id}`), `deleteProduct` (`DELETE /api/v1/products/{id}`), dan `fetchOrders` (`GET /api/v1/orders`).
+  - Tambahkan callback opsional `onLoadSuccess`/`onLoadError` pada `ProductImage` untuk mendukung status pratinjau langsung URL gambar di form Admin.
+- **Routing & Admin Shell (`frontend/src/App.tsx`, `src/features/admin/AdminLayout.tsx`, `adminContext.ts`):**
+  - Ganti `AdminPlaceholderPage` dengan nested routes `/admin` (redirect otomatis ke `/admin/products`), `/admin/products`, dan `/admin/orders`.
+  - Bangun `AdminLayout` bergaya *Editorial Warm Minimalism (Pure Operate)* berisi ringkasan metrik operasional (Produk Aktif, Stok Menipis & Habis, Total Pesanan), sub-navigasi tab **Produk** | **Pesanan** dengan counter live, tombol kembali ke Storefront (`/`), serta sinkronisasi katalog ke `cartStore`.
+- **Manajemen Produk (`frontend/src/features/admin/ProductsTable.tsx`, `ProductFormModal.tsx`):**
+  - Tabel responsif (desktop table + mobile card layout `375px` tanpa horizontal overflow) menampilkan gambar 4:3, nama, deskripsi, kategori, harga IDR (`formatIDR`), badge status stok (`Tersedia`, `Sisa X`, `Stok Habis`), tanggal pembaruan, aksi `Edit` & `Hapus`, search debounced 300ms, filter kategori, sort, dan pagination.
+  - `ProductFormModal` untuk Tambah & Edit produk dengan validasi client-side ketat (`price > 0`, `stock >= 0`, `http/https` URL, batas panjang karakter), pemetaan inline error `422 Validation Error` per field dari backend, quick-pick kategori + kategori kustom, pratinjau IDR/status stok, live preview gambar 4:3 + fallback, anti double-submit, dan notifikasi toast.
+  - Soft delete produk wajib melalui `ConfirmDialog` dengan konfirmasi bahwa riwayat order lama tetap terjaga.
+- **Daftar & Detail Pesanan (`frontend/src/features/admin/OrdersTable.tsx`, `OrderDetailModal.tsx`):**
+  - `OrdersTable` responsif untuk `GET /api/v1/orders` menampilkan kode order, status, tanggal & waktu (`formatDateTime`), info pembeli, ringkasan jumlah item (`X produk · Y unit`), total nominal IDR, tombol muat ulang, pagination, dan aksi `Lihat Detail`.
+  - `OrderDetailModal` memuat `GET /api/v1/orders/{id}` menampilkan metadata pembeli, catatan pesanan, salin kode order, dan rincian snapshot permanen `order_items` (`product_image_url`, `product_name`, `unit_price`, `quantity`, `subtotal`, grand total) yang tetap utuh meskipun produk asli telah di-soft-delete.
+- **Verifikasi:** `npm run typecheck`, `npm run lint` (`0 warnings, 0 errors`), `npm run build` lulus bersih; uji E2E live browser desktop (`1440px`) & mobile (`375px`) memverifikasi CRUD produk, validasi error, sinkronisasi Storefront, soft-delete + keutuhan snapshot order, `0 console errors`, `0 horizontal overflow`, dilanjutkan `php artisan migrate:fresh --seed` untuk mengembalikan kondisi awal database lokal (10 produk & 2 sample order).
+
 ### Planned
-- Fase 6: Admin Dashboard (`/admin/products` CRUD produk & `/admin/orders` daftar + detail order).
 - Fase 7: Edge-case QA, konfigurasi deployment (Vercel/Railway/Render), `README.md`, dan `AI_USAGE.md`.
 
 ---

@@ -59,9 +59,9 @@ Gunakan daftar ini sebagai panduan eksekusi berurutan agar proyek selesai rapi d
   - *verify:* Full flow Browse -> Search -> Filter -> Detail -> Add Cart -> Refresh Browser -> Update Qty -> Checkout -> Order Confirmation -> Stok berkurang di Catalog terverifikasi di desktop & mobile viewport (`375px` & `1440px`).
 
 ### Fase 6: Admin Dashboard (`/admin`) (~2 Jam)
-- [ ] **6.1** Bangun `AdminLayout` (`/admin/products` & `/admin/orders`) dengan ringkasan metrik singkat (total produk, stok menipis/habis, total order) dan navigasi kembali ke Storefront.
-- [ ] **6.2** Bangun `ProductsTable` + search/filter, `ProductFormModal` (Tambah & Edit produk dengan validasi inline `422` & live preview gambar), serta `ConfirmDialog` untuk Hapus produk.
-- [ ] **6.3** Bangun `OrdersTable` (kode order, tanggal, nama pembeli, jumlah item, total nominal) dan `OrderDetailModal` (info pembeli, catatan, rincian item beserta snapshot harga satuan & qty).
+- [x] **6.1** Bangun `AdminLayout` (`/admin/products` & `/admin/orders`) dengan ringkasan metrik singkat (total produk, stok menipis/habis, total order) dan navigasi kembali ke Storefront.
+- [x] **6.2** Bangun `ProductsTable` + search/filter, `ProductFormModal` (Tambah & Edit produk dengan validasi inline `422` & live preview gambar), serta `ConfirmDialog` untuk Hapus produk.
+- [x] **6.3** Bangun `OrdersTable` (kode order, tanggal, nama pembeli, jumlah item, total nominal) dan `OrderDetailModal` (info pembeli, catatan, rincian item beserta snapshot harga satuan & qty).
   - *verify:* Tambah/Edit/Hapus produk di `/admin` langsung tercermin di Storefront; order baru dari checkout langsung muncul di `/admin/orders` lengkap dengan detailnya.
 
 ### Fase 7: QA, Deliverables, Documentation & Deploy Prep (~2 Jam)

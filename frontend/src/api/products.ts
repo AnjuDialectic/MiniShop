@@ -1,5 +1,9 @@
 import type { ApiListResponse, ApiSuccessResponse } from '../types/api';
-import type { Product, ProductListParams } from '../types/product';
+import type {
+  Product,
+  ProductListParams,
+  ProductMutationPayload,
+} from '../types/product';
 import { apiRequest } from './client';
 
 export async function fetchProducts(
@@ -33,4 +37,31 @@ export async function fetchCategories(signal?: AbortSignal): Promise<string[]> {
     signal,
   });
   return response.data;
+}
+
+export async function createProduct(
+  payload: ProductMutationPayload,
+): Promise<Product> {
+  const response = await apiRequest<ApiSuccessResponse<Product>>('/products', {
+    method: 'POST',
+    body: payload,
+  });
+  return response.data;
+}
+
+export async function updateProduct(
+  id: number,
+  payload: ProductMutationPayload,
+): Promise<Product> {
+  const response = await apiRequest<ApiSuccessResponse<Product>>(`/products/${id}`, {
+    method: 'PUT',
+    body: payload,
+  });
+  return response.data;
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  await apiRequest<ApiSuccessResponse<null>>(`/products/${id}`, {
+    method: 'DELETE',
+  });
 }
