@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',
@@ -28,8 +28,21 @@ export function useDialogBehavior({
   containerRef,
   disableClose = false,
 }: UseDialogBehaviorOptions): void {
+  const onCloseRef = useRef(onClose);
+  const disableCloseRef = useRef(disableClose);
+  const didInitialFocusRef = useRef(false);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    disableCloseRef.current = disableClose;
+  }, [disableClose]);
+
   useEffect(() => {
     if (!isOpen) {
+      didInitialFocusRef.current = false;
       return;
     }
 
@@ -40,27 +53,32 @@ export function useDialogBehavior({
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
-    const focusTimer = window.requestAnimationFrame(() => {
-      const container = containerRef.current;
-      if (!container) {
-        return;
-      }
-
-      if (!container.contains(document.activeElement)) {
-        const firstFocusable = container.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
-        if (firstFocusable) {
-          firstFocusable.focus();
-        } else {
-          container.focus();
+    let focusTimer: number | null = null;
+    if (!didInitialFocusRef.current) {
+      focusTimer = window.requestAnimationFrame(() => {
+        const container = containerRef.current;
+        if (!container) {
+          return;
         }
-      }
-    });
+
+        didInitialFocusRef.current = true;
+
+        if (!container.contains(document.activeElement)) {
+          const firstFocusable = container.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+          if (firstFocusable) {
+            firstFocusable.focus();
+          } else {
+            container.focus();
+          }
+        }
+      });
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (!disableClose) {
+        if (!disableCloseRef.current) {
           event.stopPropagation();
-          onClose();
+          onCloseRef.current();
         }
         return;
       }
@@ -99,10 +117,14 @@ export function useDialogBehavior({
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      window.cancelAnimationFrame(focusTimer);
+      if (focusTimer !== null) {
+        window.cancelAnimationFrame(focusTimer);
+      }
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
-      previouslyFocused?.focus();
+      if (previouslyFocused?.isConnected) {
+        previouslyFocused.focus();
+      }
     };
-  }, [isOpen, onClose, containerRef, disableClose]);
+  }, [isOpen, containerRef]);
 }

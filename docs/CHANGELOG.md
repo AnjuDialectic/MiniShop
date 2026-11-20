@@ -66,6 +66,12 @@ Seluruh perubahan penting dan pencapaian milestone proyek MiniShop dicatat secar
   - Memastikan `git ls-files` bersih dari `.env`, `database.sqlite`, `vendor/`, `node_modules/`, `dist/`, dan file sampah.
   - Seluruh checklist Fase 0–7 pada `docs/TASK.md` selesai dan terverifikasi lulus penuh (`php artisan migrate:fresh --seed`, `php artisan test`, `vendor/bin/pint --test`, `npm run typecheck`, `npm run lint`, `npm run build`).
 
+### Fixed (QA Manual — Stabilitas Fokus Modal)
+- **Focus-Jump pada Input Modal (`frontend/src/hooks/useDialogBehavior.ts`):**
+  - Memperbaiki bug di mana pengetikan 1 karakter pada `CheckoutModal` (dan modal form lainnya) membuat fokus melompat ke tombol tutup `"X"` akibat perubahan referensi callback `onClose`/`disableClose` yang memicu cleanup & re-run `useEffect` focus management dan scroll lock.
+  - Menyimpan `onClose` dan `disableClose` menggunakan `useRef` sehingga `useEffect` utama hanya bergantung pada `[isOpen, containerRef]`, menjaga initial focus berjalan sekali saat modal dibuka (`didInitialFocusRef`) dengan guard `container.contains(document.activeElement)`, serta mengecek `previouslyFocused?.isConnected` saat cleanup.
+  - Terverifikasi melalui `npm run typecheck`, `npm run lint` (`0 errors, 0 warnings`), `npm run build`, serta uji pengetikan beruntun di browser pada seluruh field `CheckoutModal` dan `ProductFormModal` (`/admin/products`).
+
 ---
 
 ## [0.1.0-docs] — 2026-11-20

@@ -79,7 +79,12 @@ Output AI tidak pernah diterima begitu saja tanpa inspeksi kode, eksekusi nyata,
    - Audit terhadap `backend/composer.lock` menemukan bahwa dependensi `symfony/* v8.1` dari Laravel 13 mensyaratkan `php >= 8.4.1`; base image pada [`backend/Dockerfile`](./backend/Dockerfile) langsung ditetapkan ke `php:8.4-cli-alpine` (bukan 8.3) dan `php artisan route:cache` dihindari karena default `routes/web.php` masih menggunakan closure route.
    - Pada [`backend/config/cors.php`](./backend/config/cors.php), parsing `FRONTEND_URL` diperketat dengan `rtrim(trim($origin), '/')` agar trailing slash pada konfigurasi origin production tidak memicu kegagalan CORS.
 
-5. **Quality Gate Wajib di Setiap Akhir Fase:**
+5. **Temuan QA Manual & Perbaikan Bug Focus-Jump pada Modal Form (`useDialogBehavior.ts`):**
+   - Saat uji manual di browser pada `CheckoutModal` (*"Checkout Pesanan"*), setiap pengetikan 1 karakter di input `Nama Pembeli`, `Email Pembeli`, atau `Catatan Pesanan` menyebabkan fokus langsung melompat ke tombol tutup `"X"` di pojok kanan atas modal.
+   - **Akar masalah:** Pada [`useDialogBehavior.ts`](./frontend/src/hooks/useDialogBehavior.ts), `onClose` dan `disableClose` dimasukkan ke dependency array `useEffect` untuk focus management & scroll lock. Karena komponen modal meneruskan callback inline `onClose` yang berganti referensi setiap re-render saat user mengetik, cleanup `useEffect` memanggil `previouslyFocused?.focus()` (mengeluarkan fokus dari dialog) lalu re-run `requestAnimationFrame` yang memaksa fokus kembali ke elemen fokus pertama di [`Modal.tsx`](./frontend/src/components/ui/Modal.tsx) — yaitu tombol `"X"`.
+   - **Perbaikan & verifikasi:** Menyimpan `onClose` dan `disableClose` menggunakan `useRef` sehingga `useEffect` utama hanya bergantung pada `[isOpen, containerRef]`, menjaga `didInitialFocusRef` agar initial focus hanya dijalankan sekali saat modal baru dibuka (tetap kompatibel dengan React `StrictMode`), serta memastikan fokus tidak pernah dipindahkan bila sudah berada di dalam dialog (`container.contains(document.activeElement)`). Diverifikasi ulang via `npm run typecheck`, `npm run lint`, `npm run build`, dan uji ketik karakter-demi-karakter di browser pada seluruh field `CheckoutModal` dan `ProductFormModal` (`/admin/products` mode Tambah & Edit).
+
+6. **Quality Gate Wajib di Setiap Akhir Fase:**
    - **Backend:** `php artisan migrate:fresh --seed`, `php artisan test`, dan `vendor/bin/pint --test`.
    - **Frontend:** `npm run typecheck`, `npm run lint` (`0 errors, 0 warnings`), dan `npm run build`.
    - **Repository Hygiene:** Audit `git ls-files` dan `git status` untuk memastikan tidak ada file `.env`, `database.sqlite`, `vendor/`, `node_modules/`, `dist/`, atau file sementara yang masuk ke repository.
