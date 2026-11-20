@@ -17,27 +17,27 @@ Gunakan daftar ini sebagai panduan eksekusi berurutan agar proyek selesai rapi d
   - *verify:* `npm run typecheck`, `npm run lint`, `npm run build`, dan `vite` dev server di `http://localhost:5173` berjalan bersih.
 
 ### Fase 1: Database Schema, Models & Seeder (~1.5 Jam)
-- [ ] **1.1** Buat migrations PostgreSQL untuk tabel `products` (dengan `softDeletes`, index `category`, `CHECK (price > 0)`, `CHECK (stock >= 0)`), `orders` (`order_code` unique, `total_amount > 0`, `total_quantity > 0`), dan `order_items` (FK `order_id` cascade, FK `product_id` restrict, kolom snapshot `product_name`, `product_image_url`, `unit_price`, `quantity`, `subtotal`).
-  - *verify:* `php artisan migrate:fresh` berjalan bersih dan constraint `CHECK` aktif di PostgreSQL.
-- [ ] **1.2** Buat Eloquent Models (`Product`, `Order`, `OrderItem`) beserta `$fillable`, `$casts`, `SoftDeletes`, dan relasi `hasMany`/`belongsTo`.
-  - *verify:* Tinker / test memverifikasi relasi `Order::with('items')->get()` dan `Product::withTrashed()`.
-- [ ] **1.3** Buat `ProductSeeder` (10 produk dummy realistis lintas 4 kategori, termasuk 1 produk `stock = 0` dan 1 produk `stock = 2`), `OrderSeeder` (2 sample orders historis), dan daftarkan di `DatabaseSeeder`.
-  - *verify:* `php artisan migrate:fresh --seed` mengisi tepat 10 produk dan 2 order tanpa error.
+- [x] **1.1** Buat migrations PostgreSQL untuk tabel `products` (dengan `softDeletes`, index `category`, `CHECK (price > 0)`, `CHECK (stock >= 0)`), `orders` (`order_code` unique, `total_amount > 0`, `total_quantity > 0`), dan `order_items` (FK `order_id` cascade, FK `product_id` restrict, kolom snapshot `product_name`, `product_image_url`, `unit_price`, `quantity`, `subtotal`).
+  - *verify:* `php artisan migrate:fresh` berjalan bersih di SQLite lokal dan constraint `CHECK` aktif otomatis untuk PostgreSQL.
+- [x] **1.2** Buat Eloquent Models (`Product`, `Order`, `OrderItem`) beserta `$fillable`, `$casts`, `SoftDeletes`, dan relasi `hasMany`/`belongsTo`.
+  - *verify:* Feature test & CLI memverifikasi relasi `Order::with('items')->get()` dan `Product::withTrashed()`.
+- [x] **1.3** Buat `ProductSeeder` (10 produk dummy realistis lintas 4 kategori, termasuk 1 produk `stock = 0` dan 1 produk `stock = 2`), `OrderSeeder` (2 sample orders historis), dan daftarkan di `DatabaseSeeder`.
+  - *verify:* `php artisan migrate:fresh --seed` mengisi tepat 10 produk dan 2 order tanpa error (serta idempotent saat dijalankan ulang).
 
 ### Fase 2: Backend REST API & Atomic Checkout (~3.5 Jam)
-- [ ] **2.1** Buat `ApiResponse` helper & konversi global exception di `bootstrap/app.php` (`ValidationException` -> `422`, `ModelNotFoundException` -> `404`, `CheckoutConflictException` -> `409`, fallback JSON `500`).
+- [x] **2.1** Buat `ApiResponse` helper & konversi global exception di `bootstrap/app.php` (`ValidationException` -> `422`, `ModelNotFoundException` -> `404`, `CheckoutConflictException` -> `409`, fallback JSON `500`).
   - *verify:* Endpoint tak dikenal & payload invalid selalu mengembalikan JSON konsisten `{ success: false, message, errors }`.
-- [ ] **2.2** Buat API Resources (`ProductResource`, `OrderResource`, `OrderItemResource`) dan `FormRequest` validators (`StoreProductRequest`, `UpdateProductRequest`, `StoreOrderRequest` termasuk `items.*.product_id => distinct`).
+- [x] **2.2** Buat API Resources (`ProductResource`, `OrderResource`, `OrderItemResource`) dan `FormRequest` validators (`StoreProductRequest`, `UpdateProductRequest`, `StoreOrderRequest` termasuk `items.*.product_id => distinct`).
   - *verify:* Request dengan `price <= 0`, `stock < 0`, URL invalid, atau `product_id` duplikat ditolak `422`.
-- [ ] **2.3** Implementasi `CategoryController` (`GET /api/v1/categories`) dan `ProductController` (`GET`, `GET /{id}`, `POST`, `PUT /{id}`, `DELETE /{id}` + search `ILIKE`, filter `category`, sort, pagination).
-  - *verify:* Seluruh CRUD produk & filter/search bekerja via HTTP test/curl.
-- [ ] **2.4** Implementasi `CheckoutService` (`DB::transaction`, `orderBy('id', 'asc')->lockForUpdate()`, cek semua produk & stok sebelum mutasi, hitung subtotal/total server-side, simpan `orders` + `order_items` snapshot, decrement stok) dan `OrderController` (`POST /api/v1/orders`, `GET /api/v1/orders`, `GET /api/v1/orders/{id}`).
-  - *verify:* Checkout valid mengembalikan `201 Created`, mengurangi stok di DB, dan menolak jika 1 item saja kurang stok dengan rollback total (`409 Conflict`).
+- [x] **2.3** Implementasi `CategoryController` (`GET /api/v1/categories`) dan `ProductController` (`GET`, `GET /{id}`, `POST`, `PUT /{id}`, `DELETE /{id}` + search `ILIKE`/SQLite case-insensitive, filter `category`, sort, pagination).
+  - *verify:* Seluruh CRUD produk & filter/search bekerja via HTTP Feature Tests.
+- [x] **2.4** Implementasi `CheckoutService` (`DB::transaction`, `orderBy('id', 'asc')`, `lockForUpdate()` saat `pgsql`, conditional atomic `UPDATE stock = stock - qty WHERE id = ? AND stock >= qty`, cek semua produk & stok sebelum mutasi, hitung subtotal/total server-side, simpan `orders` + `order_items` snapshot) dan `OrderController` (`POST /api/v1/orders`, `GET /api/v1/orders`, `GET /api/v1/orders/{id}`).
+  - *verify:* Checkout valid mengembalikan `201 Created`, mengurangi stok di DB, dan menolak jika 1 item saja kurang stok/tidak tersedia dengan rollback total (`409 Conflict` + `available_stock`).
 
 ### Fase 3: Backend Automated Tests (~2 Jam)
-- [ ] **3.1** Tulis `tests/Feature/ProductApiTest.php` (list, search, filter kategori, create, update, soft delete, validation errors `422`, not found `404`).
-- [ ] **3.2** Tulis `tests/Feature/CheckoutTest.php` (checkout sukses + verifikasi pengurangan stok + server-side price authority, stok tidak cukup -> `409` & stok item lain tetap utuh/rollback, produk soft-deleted ditolak, duplikasi `product_id` -> `422`, empty items -> `422`).
-- [ ] **3.3** Tulis `tests/Feature/OrderAdminTest.php` (list order urut terbaru + `items_count`, detail order mempertahankan snapshot harga lama meski harga produk diubah atau produk dihapus).
+- [x] **3.1** Tulis `tests/Feature/ProductApiTest.php` (list, search, filter kategori, create, update, soft delete, validation errors `422`, not found `404`).
+- [x] **3.2** Tulis `tests/Feature/CheckoutTest.php` (checkout sukses + verifikasi pengurangan stok + server-side price authority, stok tidak cukup -> `409` & stok item lain tetap utuh/rollback, produk soft-deleted ditolak, rollback conditional update, duplikasi `product_id` -> `422`, empty items -> `422`).
+- [x] **3.3** Tulis `tests/Feature/OrderAdminTest.php` (list order urut terbaru + `items_count`, detail order mempertahankan snapshot harga lama meski harga produk diubah atau produk dihapus, verifikasi seeder 10 produk + 2 orders).
   - *verify:* `php artisan test` lulus 100% tanpa warning atau skip.
 
 ---

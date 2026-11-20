@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\CheckoutConflictException;
 use App\Support\ApiResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Application;
@@ -30,6 +31,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (ValidationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return ApiResponse::error('Data yang dikirim tidak valid.', 422, $e->errors());
+            }
+
+            return null;
+        });
+
+        $exceptions->render(function (CheckoutConflictException $e, Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return ApiResponse::error($e->getMessage(), 409, [
+                    'items' => $e->conflicts(),
+                ]);
             }
 
             return null;
