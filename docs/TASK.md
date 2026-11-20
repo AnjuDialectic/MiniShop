@@ -45,17 +45,17 @@ Gunakan daftar ini sebagai panduan eksekusi berurutan agar proyek selesai rapi d
 ## Hari 2 — Frontend UI, Admin Dashboard, QA, Docs & Deploy (~8 Jam)
 
 ### Fase 4: Frontend Core, Design Tokens & Cart Store (~1.5 Jam)
-- [ ] **4.1** Konfigurasi font (`Plus Jakarta Sans`, `Inter`, `JetBrains Mono`) & CSS design tokens di `frontend/src/index.css` sesuai [Design.md](./Design.md).
-- [ ] **4.2** Buat TypeScript types (`product.ts`, `cart.ts`, `order.ts`, `api.ts`), helper `formatIDR` & `formatDateTime`, serta API client (`src/api/client.ts`, `products.ts`, `orders.ts`) dengan parsing error `422`/`409`.
-- [ ] **4.3** Implementasi `src/stores/cartStore.ts` (Zustand + `persist` ke `localStorage` key `minishop-cart-v1`) dengan `addItem`, `updateQuantity` (clamp `1..maxStock`), `removeItem`, `clearCart`, `syncWithCatalog`, `applyStockConflicts`, serta `toastStore.ts`.
-- [ ] **4.4** Bangun shared UI primitives (`Button`, `Badge`, `Modal`, `ConfirmDialog`, `ProductImage` dengan fallback `onError`, `EmptyState`, `Toast`) dan `AppShell` + `Navbar` responsif.
+- [x] **4.1** Konfigurasi font (`Plus Jakarta Sans`, `Inter`, `JetBrains Mono`) & CSS design tokens di `frontend/src/index.css` sesuai [Design.md](./Design.md).
+- [x] **4.2** Buat TypeScript types (`product.ts`, `cart.ts`, `order.ts`, `api.ts`), helper `formatIDR` & `formatDateTime`, serta API client (`src/api/client.ts`, `products.ts`, `orders.ts`) dengan parsing error `422`/`409`.
+- [x] **4.3** Implementasi `src/stores/cartStore.ts` (Zustand + `persist` ke `localStorage` key `minishop-cart-v1`) dengan `addItem`, `updateQuantity` (clamp `1..maxStock`), `removeItem`, `clearCart`, `syncWithCatalog`, `applyStockConflicts`, serta `toastStore.ts`.
+- [x] **4.4** Bangun shared UI primitives (`Button`, `Badge`, `Modal`, `ConfirmDialog`, `ProductImage` dengan fallback `onError`, `EmptyState`, `Toast`) dan `AppShell` + `Navbar` responsif.
   - *verify:* Cart tetap tersimpan setelah reload browser; `npx tsc --noEmit` lulus bersih.
 
 ### Fase 5: Customer Storefront, Cart Drawer & Checkout (~2.5 Jam)
-- [ ] **5.1** Bangun `CatalogPage` (`/`) dengan search debounced 300ms, `CategoryFilter` pills, skeleton loading grid, `ProductCard` (badge stok habis / sisa stok, disable CTA saat habis atau maksimal di cart), serta `syncWithCatalog`.
-- [ ] **5.2** Bangun `ProductDetailModal` dan rute langsung `/products/:id` (detail penuh, qty stepper `1..stock`, tombol Add to Cart).
-- [ ] **5.3** Bangun `CartDrawer` (slide-over kanan, kontrol `-` / input / `+`, batas stok ketat, hapus item, kalkulasi otomatis line total & subtotal, tombol "Lanjut Checkout").
-- [ ] **5.4** Bangun `CheckoutModal` (form nama wajib + email/catatan opsional, ringkasan item, anti double-submit, recovery UI untuk `409 Conflict` stok kurang) dan `OrderConfirmationPage` (`/orders/:id/confirmation`) yang menampilkan ringkasan "Order Berhasil" & mengosongkan cart.
+- [x] **5.1** Bangun `CatalogPage` (`/`) dengan search debounced 300ms, `CategoryFilter` pills, skeleton loading grid, `ProductCard` (badge stok habis / sisa stok, disable CTA saat habis atau maksimal di cart), serta `syncWithCatalog`.
+- [x] **5.2** Bangun `ProductDetailModal` dan rute langsung `/products/:id` (detail penuh, qty stepper `1..stock`, tombol Add to Cart).
+- [x] **5.3** Bangun `CartDrawer` (slide-over kanan, kontrol `-` / input / `+`, batas stok ketat, hapus item, kalkulasi otomatis line total & subtotal, tombol "Lanjut Checkout").
+- [x] **5.4** Bangun `CheckoutModal` (form nama wajib + email/catatan opsional, ringkasan item, anti double-submit, recovery UI untuk `409 Conflict` stok kurang) dan `OrderConfirmationPage` (`/orders/:id/confirmation`) yang menampilkan ringkasan "Order Berhasil" & mengosongkan cart.
   - *verify:* Full flow Browse -> Search -> Filter -> Detail -> Add Cart -> Refresh Browser -> Update Qty -> Checkout -> Order Confirmation -> Stok berkurang di Catalog terverifikasi di desktop & mobile viewport (`375px` & `1440px`).
 
 ### Fase 6: Admin Dashboard (`/admin`) (~2 Jam)

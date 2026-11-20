@@ -24,8 +24,22 @@ Seluruh perubahan penting dan pencapaian milestone proyek MiniShop dicatat secar
 - **Automated Feature Tests (`backend/tests/Feature/`):**
   - `ProductApiTest`, `CheckoutTest`, dan `OrderAdminTest` lulus 100% via `php artisan test` serta lolos pemeriksaan style Laravel Pint.
 
+### Completed (Fase 4–5: Frontend Customer Storefront, Cart & Checkout)
+- **Design System, Types & API Client (`frontend/src/index.css`, `src/types/`, `src/api/`, `src/utils/`):**
+  - Finalisasi design tokens *Editorial Warm Minimalism*, animasi GPU-accelerated (`prefers-reduced-motion` aware), tipografi (`Plus Jakarta Sans`, `Inter`, `JetBrains Mono` + `tabular-nums`), dan utilitas `formatIDR` & `formatDateTime`.
+  - Kontrak TypeScript ketat 100% selaras dengan Laravel API Resources (`Product`, `Order`, `OrderItem`) serta `ApiError` parser untuk validasi `422` dan `409 Conflict` (`errors.items` berisi `product_id`, `product_name`, `requested_quantity`, `available_stock`, `reason`).
+- **State Management Cart & UI Primitives (`frontend/src/stores/`, `src/components/`):**
+  - Zustand `cartStore` terpersisten otomatis ke `localStorage` (`minishop-cart-v1`) dengan sanitasi rehydration, batas ketat `1 <= qty <= maxStock`, `syncWithCatalog`, `applyStockConflicts`, `resolveConflictForItem`, dan `resolveAllConflicts`, ditambah `toastStore` & `uiStore`.
+  - Shared UI primitives aksesibel WCAG 2.2 AA (`Button`, `Badge`, `Modal`, `ConfirmDialog`, `ProductImage` rasio `4:3` + fallback `onError`, `EmptyState`, `ToastContainer`), `useDialogBehavior` (Escape, focus trap, scroll lock), serta `AppShell` + `Navbar` (link Storefront `/`, tombol `/admin`, dan tombol Keranjang ber-badge counter).
+- **Catalog, Product Detail, Cart Drawer & Atomic Checkout (`frontend/src/features/`):**
+  - `CatalogPage` (`/`): integrasi `GET /api/v1/products` & `GET /api/v1/categories`, search debounced 300ms, filter kategori, sort, skeleton grid, indikator `Stok Habis` (disable CTA) / `Sisa X` / `Stok: X`, serta rute placeholder `/admin` (`AdminPlaceholderPage`).
+  - `ProductDetailModal` & rute langsung `/products/:id` (`ProductDetailPage`) dengan qty stepper sesuai batas sisa stok.
+  - `CartDrawer` & `CartItemRow`: ubah qty (`-`/input/`+`), hapus item, kosongkan keranjang, kalkulasi live subtotal per item & grand total, serta resolusi item konflik stok.
+  - `CheckoutModal` & `OrderConfirmationPage` (`/orders/:id/confirmation`): submit `POST /api/v1/orders` tanpa payment gateway, anti double-submit, panel pemulihan `409 Conflict` per item & 1-klik *"Sesuaikan Semua ke Stok Tersedia"*, pengosongan otomatis cart di Zustand + `localStorage` saat sukses, serta halaman konfirmasi *"Order Berhasil"* yang mendukung refresh via `GET /api/v1/orders/{id}`.
+- **Verifikasi:** `npm run typecheck`, `npm run lint` (`0 warnings, 0 errors`), `npm run build` lulus bersih, serta uji E2E live browser (termasuk simulasi 409 Conflict multi-tab, persistensi `localStorage` lintas reload, dan responsivitas `1440px` & `375px`).
+
 ### Planned
-- Fase 4–6: React + Vite + Tailwind + Zustand Storefront, Cart Drawer (`localStorage`), Checkout & Confirmation, serta Admin Dashboard (`/admin`).
+- Fase 6: Admin Dashboard (`/admin/products` CRUD produk & `/admin/orders` daftar + detail order).
 - Fase 7: Edge-case QA, konfigurasi deployment (Vercel/Railway/Render), `README.md`, dan `AI_USAGE.md`.
 
 ---
